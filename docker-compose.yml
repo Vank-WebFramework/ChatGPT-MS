@@ -1,0 +1,19 @@
+version: "3.0"
+services:
+  chat-service:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - ./:/root/service
+    ports:
+      - "5000:5000"
+  chat-nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    links:
+      - chat-service
+    ports:
+      - "80:80"
