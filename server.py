@@ -10,8 +10,7 @@ from expiringdict import ExpiringDict
 from flask import Flask, request, jsonify, Response
 
 from classes import openai as OpenAI
-from PyChatGPT.src.pychatgpt.classes import chat as Chat
-
+from pychatgpt import Chat
 # Fancy stuff
 import colorama
 from colorama import Fore

@@ -14,8 +14,7 @@ from colorama import Fore
 
 colorama.init(autoreset=True)
 
-from PyChatGPT.src.pychatgpt.classes import openai as OpenAI
-
+from pychatgpt import OpenAI
 
 def get_access_token():
     """
