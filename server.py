@@ -16,7 +16,6 @@ from PyChatGPT.src.pychatgpt.classes import chat as Chat
 import colorama
 from colorama import Fore
 
-
 MAX_SESSION_NUM = 3000
 MAX_AGE_SECONDS = 1800
 
@@ -40,6 +39,8 @@ with open("config.json", "r") as f:
 
 # Get access token
 access_token = OpenAI.get_access_token()
+
+
 def access_token_expired():
     if access_token is None or \
             access_token[0] is None or \
@@ -48,8 +49,11 @@ def access_token_expired():
         return True
     return False
 
+
 # Try login
 sem = threading.Semaphore()
+
+
 def try_login():
     global access_token
     sem.acquire()
@@ -68,6 +72,7 @@ def try_login():
 
     sem.release()
 
+
 if access_token_expired():
     try_login()
 else:
@@ -76,11 +81,14 @@ else:
 # Cache all conv id
 # user => (conversation_id, previous_convo_id)
 prev_conv_id_cache = ExpiringDict(max_len=MAX_SESSION_NUM, max_age_seconds=MAX_AGE_SECONDS)
+
+
 def get_prev_conv_id(user):
     if user not in prev_conv_id_cache:
         prev_conv_id_cache[user] = (None, None)
     conversation_id, prev_conv_id = prev_conv_id_cache[user]
     return conversation_id, prev_conv_id
+
 
 def set_prev_conv_id(user, conversation_id, prev_conv_id):
     prev_conv_id_cache[user] = (conversation_id, prev_conv_id)
@@ -106,16 +114,16 @@ def chat():
     else:
         conversation_id, prev_conv_id = get_prev_conv_id(user)
         answer, previous_convo, convo_id = Chat.ask(auth_token=access_token,
-                                          prompt=message,
-                                          conversation_id=conversation_id,
-                                          previous_convo_id=prev_conv_id,
-                                          proxies=None)
+                                                    prompt=message,
+                                                    conversation_id=conversation_id,
+                                                    previous_convo_id=prev_conv_id,
+                                                    proxies=None)
         if answer == "400" or answer == "401":
             print(f"{Fore.RED}>> Failed to get a response from the API.")
             return Response(
-                    "Please try again latter.",
-                    status=400,
-                )
+                "Please try again latter.",
+                status=400,
+            )
         set_prev_conv_id(user, convo_id, previous_convo)
 
     print(f"{Fore.GREEN}[TO {user}] >> {answer}")
@@ -157,14 +165,16 @@ def chat_stream():
     else:
         conversation_id, prev_conv_id = get_prev_conv_id(user)
         return Response(update_id_in_stream(user=user,
-                                          auth_token=access_token,
-                                          prompt=message,
-                                          conversation_id=conversation_id,
-                                          previous_convo_id=prev_conv_id,
-                                          proxies=None))
+                                            auth_token=access_token,
+                                            prompt=message,
+                                            conversation_id=conversation_id,
+                                            previous_convo_id=prev_conv_id,
+                                            proxies=None))
+
 
 def start_browser():
-    APP.run(port=5000, threaded=True)
+    APP.run(host='0.0.0.0', port=5000, threaded=True)
+
 
 if __name__ == "__main__":
     start_browser()
